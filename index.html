@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TidyDay: one chore a day</title>
+<meta name="description" content="TidyDay gives you one small cleaning chore each day so your home never gets overwhelming.">
+<meta name="theme-color" content="#FFC53D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TidyDay">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧽%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2350;
+  --butter:#FFF4D6;
+  --pink:#FF4F8B;
+  --teal:#18B8A6;
+  --sun:#FFC53D;
+  --blue:#4F7CFF;
+  --white:#ffffff;
+  --shadow:4px 4px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--butter);color:var(--ink);
+  font:400 1.0625rem/1.5 'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.brand{font-family:'Baloo 2','Nunito',system-ui,sans-serif;line-height:1.1;margin:0}
+.wrap{
+  max-width:560px;margin:0 auto;
+  padding:16px 16px 56px;
+  padding-top:max(16px,env(safe-area-inset-top));
+  padding-bottom:max(56px,env(safe-area-inset-bottom));
+}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand{font-size:2rem;font-weight:800;display:flex;gap:8px;align-items:center}
+.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.tab{
+  font:inherit;font-weight:800;padding:8px 18px;cursor:pointer;
+  border:3px solid var(--ink);border-radius:999px;background:var(--white);color:var(--ink);
+}
+.tab[aria-current="page"]{background:var(--ink);color:var(--white)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+.card{
+  background:var(--white);border:3px solid var(--ink);border-radius:20px;
+  box-shadow:var(--shadow);padding:22px;margin-bottom:20px;
+}
+.card h2{font-size:1.6rem;margin-bottom:6px}
+.muted{opacity:.78}
+.small-text{font-size:.95rem}
+
+.sticker{
+  border:3px solid var(--ink);border-radius:28px;box-shadow:6px 6px 0 var(--ink);
+  padding:26px 22px 22px;margin-bottom:22px;transform:rotate(-1.2deg);
+}
+.sticker .room{
+  display:inline-block;background:var(--white);border:3px solid var(--ink);
+  border-radius:999px;padding:2px 14px;font-weight:800;margin-bottom:14px;
+}
+.sticker .chore-name{font-size:2.2rem;font-weight:800;margin-bottom:10px;overflow-wrap:anywhere}
+.sticker .last{margin-bottom:22px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.btn{
+  font:inherit;font-weight:800;cursor:pointer;
+  padding:12px 22px;border:3px solid var(--ink);border-radius:999px;
+  background:var(--white);color:var(--ink);box-shadow:3px 3px 0 var(--ink);
+  transition:transform .08s ease, box-shadow .08s ease;
+}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.primary{background:var(--ink);color:var(--white)}
+.btn.small{padding:6px 14px;font-size:.95rem;box-shadow:2px 2px 0 var(--ink)}
+.btn:disabled{opacity:.6;cursor:wait}
+.link{
+  font:inherit;font-weight:800;background:none;border:0;color:var(--ink);
+  text-decoration:underline;cursor:pointer;padding:8px 4px;
+}
+
+label{display:block;font-weight:800;margin:14px 0 6px}
+input[type=text],input[type=email],input[type=password],input[type=time]{
+  width:100%;font:inherit;padding:11px 14px;color:var(--ink);background:var(--white);
+  border:3px solid var(--ink);border-radius:14px;
+}
+.form-actions{margin-top:20px}
+
+.notice{
+  border:3px solid var(--ink);border-radius:16px;padding:12px 16px;margin-bottom:18px;font-weight:700;
+}
+.notice.error{background:#FFD6E2}
+.notice.good{background:#C9F5EE}
+
+.group{margin-bottom:22px}
+.group h3{font-size:1.35rem;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);display:inline-block}
+.row{
+  display:flex;gap:10px;justify-content:space-between;align-items:center;
+  background:var(--white);border:3px solid var(--ink);border-radius:16px;
+  padding:10px 14px;margin-bottom:10px;
+}
+.row .name{font-weight:700;overflow-wrap:anywhere}
+.row .when{font-size:.9rem;opacity:.75}
+.row-actions{display:flex;gap:8px;flex-shrink:0}
+.row.editing{flex-direction:column;align-items:stretch}
+.row.editing input{margin-bottom:4px}
+.row.editing .row-actions{justify-content:flex-end}
+.add-grid{display:grid;gap:4px}
+
+.steps{padding-left:20px;margin:10px 0 0}
+.steps li{margin-bottom:6px}
+
+.confetti{
+  position:fixed;top:-20px;width:10px;height:14px;border-radius:3px;
+  pointer-events:none;z-index:50;animation:fall 1.7s ease-in forwards;
+}
+@keyframes fall{to{transform:translateY(110vh) rotate(560deg)}}
+@media (prefers-reduced-motion:reduce){
+  .sticker{transform:none}
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div id="app" aria-live="polite"></div>
+  <noscript>TidyDay needs JavaScript turned on to work.</noscript>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.100.1/dist/umd/supabase.js"></script>
+<script>
+// ---------- Connection settings ----------
+const SUPABASE_URL = 'https://blyzndszdusxwpmbwjez.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_XFXxqkXSrDtuzelk_G69XQ_OOAgQw_a';
+
+// How many days before a finished chore can come up again
+const RECENT_DAYS = 14;
+
+const ROOMS = ['Kitchen', 'Bathroom', 'Bedroom', 'Living room', 'Laundry', 'Whole home', 'General'];
+const ROOM_COLORS = {
+  'kitchen': '#FFC53D',
+  'bathroom': '#6FB5FF',
+  'bedroom': '#C4A1FF',
+  'living room': '#FF8FB5',
+  'laundry': '#FFA94D',
+  'whole home': '#3FD6C4',
+  'general': '#B8E986'
+};
+const EXTRA_COLORS = ['#FF9AA2', '#9BE564', '#7FDBFF', '#FFD166'];
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const app = document.getElementById('app');
+
+const state = {
+  session: null,
+  loading: true,
+  authMode: 'login',
+  tab: 'today',
+  chores: [],
+  pick: null,
+  editingId: null,
+  msg: '',
+  notice: '',
+  remindTime: '09:00'
+};
+
+// ---------- Small helpers ----------
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v === true) el.setAttribute(k, '');
+    else if (v !== false && v != null) el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+function dateStr(d = new Date()) {
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+}
+function daysSince(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  const then = new Date(y, m - 1, d);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((today - then) / 86400000);
+}
+function lastDoneText(c) {
+  if (!c.last_done) return 'Not done yet';
+  const n = daysSince(c.last_done);
+  if (n <= 0) return 'Done today';
+  if (n === 1) return 'Done yesterday';
+  return 'Done ' + n + ' days ago';
+}
+function roomColor(room) {
+  const key = (room || 'general').toLowerCase();
+  if (ROOM_COLORS[key]) return ROOM_COLORS[key];
+  let sum = 0;
+  for (const ch of key) sum += ch.charCodeAt(0);
+  return EXTRA_COLORS[sum % EXTRA_COLORS.length];
+}
+function must(res) {
+  if (res.error) throw res.error;
+  return res.data;
+}
+function currentChore() {
+  if (!state.pick) return null;
+  return state.chores.find(c => c.id === state.pick.chore_id) || null;
+}
+function sortChores() {
+  state.chores.sort((a, b) => a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
+}
+
+// Pick a random chore that has not been done recently
+function choose(excludeId) {
+  const all = state.chores.filter(c => c.id !== excludeId);
+  if (!all.length) return null;
+  let pool = all.filter(c => !c.last_done || daysSince(c.last_done) >= RECENT_DAYS);
+  if (!pool.length) {
+    // Everything was done recently: fall back to the ones done longest ago
+    pool = [...all]
+      .sort((a, b) => a.last_done.localeCompare(b.last_done))
+      .slice(0, 5);
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+async function run(fn) {
+  try {
+    state.msg = '';
+    await fn();
+  } catch (e) {
+    state.msg = (e && e.message) ? e.message : 'Something went wrong. Please try again.';
+  }
+  render();
+}
+
+function confetti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#FF4F8B', '#FFC53D', '#18B8A6', '#4F7CFF', '#C4A1FF'];
+  for (let i = 0; i < 40; i++) {
+    const bit = h('span', { class: 'confetti', 'aria-hidden': 'true' });
+    bit.style.left = Math.random() * 100 + 'vw';
+    bit.style.background = colors[i % colors.length];
+    bit.style.animationDelay = (Math.random() * 0.4) + 's';
+    document.body.append(bit);
+    setTimeout(() => bit.remove(), 2400);
+  }
+}
+
+// ---------- Data actions ----------
+async function ensurePick() {
+  if (!state.chores.length) return;
+  const needsNew = !state.pick ||
+    (state.pick.status === 'pending' && !state.chores.find(c => c.id === state.pick.chore_id));
+  if (!needsNew) return;
+  const chosen = choose();
+  if (!chosen) return;
+  if (!state.pick) {
+    const res = await sb.from('daily_picks')
+      .insert({ pick_date: dateStr(), chore_id: chosen.id }).select().single();
+    if (res.error) {
+      // Probably created in another tab at the same moment: load it instead
+      const again = await sb.from('daily_picks').select('*').eq('pick_date', dateStr()).maybeSingle();
+      if (again.error) throw res.error;
+      state.pick = again.data;
+    } else {
+      state.pick = res.data;
+    }
+  } else {
+    must(await sb.from('daily_picks').update({ chore_id: chosen.id }).eq('pick_date', dateStr()));
+    state.pick.chore_id = chosen.id;
+  }
+}
+
+async function loadAll() {
+  state.loading = true;
+  render();
+  try {
+    state.chores = must(await sb.from('chores').select('*')) || [];
+    sortChores();
+    state.pick = must(await sb.from('daily_picks').select('*').eq('pick_date', dateStr()).maybeSingle());
+    await ensurePick();
+  } catch (e) {
+    state.msg = (e && e.message) ? e.message : 'Could not load your chores. Please refresh.';
+  }
+  state.loading = false;
+  render();
+}
+
+function markDone() {
+  return run(async () => {
+    const c = currentChore();
+    if (c) {
+      must(await sb.from('chores').update({ last_done: dateStr() }).eq('id', c.id));
+      c.last_done = dateStr();
+    }
+    must(await sb.from('daily_picks').update({ status: 'done' }).eq('pick_date', dateStr()));
+    state.pick.status = 'done';
+    confetti();
+  });
+}
+
+function swapChore() {
+  return run(async () => {
+    const next = choose(state.pick.chore_id);
+    if (!next) { state.msg = 'Add a few more chores on the My chores tab to swap.'; return; }
+    must(await sb.from('daily_picks').update({ chore_id: next.id }).eq('pick_date', dateStr()));
+    state.pick.chore_id = next.id;
+  });
+}
+
+function setPickStatus(status) {
+  return run(async () => {
+    must(await sb.from('daily_picks').update({ status }).eq('pick_date', dateStr()));
+    state.pick.status = status;
+  });
+}
+
+function addChore(name, room) {
+  return run(async () => {
+    const row = must(await sb.from('chores').insert({ name, room }).select().single());
+    state.chores.push(row);
+    sortChores();
+    if (!state.pick) await ensurePick();
+  });
+}
+
+function updateChore(id, name, room) {
+  return run(async () => {
+    must(await sb.from('chores').update({ name, room }).eq('id', id));
+    const c = state.chores.find(x => x.id === id);
+    if (c) { c.name = name; c.room = room; }
+    sortChores();
+    state.editingId = null;
+  });
+}
+
+function deleteChore(c) {
+  if (!confirm('Delete "' + c.name + '"?')) return;
+  return run(async () => {
+    must(await sb.from('chores').delete().eq('id', c.id));
+    state.chores = state.chores.filter(x => x.id !== c.id);
+    if (state.pick && state.pick.chore_id === c.id) {
+      state.pick.chore_id = null;
+      await ensurePick();
+    }
+  });
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+}
+
+// ---------- Views ----------
+function authView() {
+  const signup = state.authMode === 'signup';
+  const email = h('input', { type: 'email', id: 'email', required: true, autocomplete: 'email', placeholder: 'you@example.com' });
+  const pw = h('input', {
+    type: 'password', id: 'pw', required: true, minlength: '6',
+    autocomplete: signup ? 'new-password' : 'current-password',
+    placeholder: 'At least 6 characters'
+  });
+  const submit = h('button', { class: 'btn primary', type: 'submit' }, signup ? 'Create my account' : 'Log in');
+
+  const form = h('form', {
+    class: 'card',
+    onsubmit: async (e) => {
+      e.preventDefault();
+      submit.disabled = true;
+      state.msg = '';
+      state.notice = '';
+      try {
+        if (signup) {
+          const res = await sb.auth.signUp({ email: email.value.trim(), password: pw.value });
+          if (res.error) throw res.error;
+          if (!res.data.session) {
+            state.authMode = 'login';
+            state.notice = 'Almost there! Check your email and tap the confirmation link, then log in here.';
+          }
+        } else {
+          const res = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pw.value });
+          if (res.error) throw res.error;
+        }
+      } catch (err) {
+        state.msg = err.message || 'Something went wrong. Please try again.';
+      }
+      submit.disabled = false;
+      if (state.msg || state.notice) render();
+    }
+  },
+    h('h2', null, signup ? 'Create your account' : 'Welcome back'),
+    h('p', { class: 'muted' }, 'One small chore a day keeps the big clean-up away.'),
+    h('label', { for: 'email' }, 'Email'),
+    email,
+    h('label', { for: 'pw' }, 'Password'),
+    pw,
+    h('div', { class: 'form-actions' }, submit)
+  );
+
+  const toggle = h('button', {
+    class: 'link', type: 'button',
+    onclick: () => {
+      state.authMode = signup ? 'login' : 'signup';
+      state.msg = '';
+      state.notice = '';
+      render();
+    }
+  }, signup ? 'Have an account? Log in' : 'New here? Create an account');
+
+  return [form, toggle];
+}
+
+function todayView() {
+  const chore = currentChore();
+  const pick = state.pick;
+  const dateLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+  if (!state.chores.length) {
+    return h('div', { class: 'card' },
+      h('h2', null, 'Your list is empty'),
+      h('p', null, 'Add a chore on the My chores tab and it will show up here.'));
+  }
+  if (!pick) {
+    return h('div', { class: 'card' }, h('p', null, 'Picking your chore...'));
+  }
+
+  if (pick.status === 'done') {
+    const done7 = state.chores.filter(c => c.last_done && daysSince(c.last_done) < 7).length;
+    return h('div', { class: 'card' },
+      h('h2', null, 'Nice work!'),
+      h('p', null, chore ? '"' + chore.name + '" is done for today.' : 'Today\'s chore is done.'),
+      h('p', null, 'Come back tomorrow for a fresh one.'),
+      h('p', { class: 'muted small-text' }, 'Chores finished in the last 7 days: ' + done7));
+  }
+
+  if (pick.status === 'skipped') {
+    return h('div', { class: 'card' },
+      h('h2', null, 'Skipped for today'),
+      h('p', null, 'No problem. A new chore will be waiting tomorrow.'),
+      h('button', { class: 'link', onclick: () => setPickStatus('pending') }, 'Changed your mind? Bring it back'));
+  }
+
+  const sticker = h('div', { class: 'sticker', style: 'background:' + roomColor(chore && chore.room) },
+    h('div', { class: 'room' }, chore ? chore.room : 'Chore'),
+    h('div', { class: 'chore-name' }, chore ? chore.name : 'Your chore'),
+    h('div', { class: 'last' }, chore ? lastDoneText(chore) : ''),
+    h('div', { class: 'actions' },
+      h('button', { class: 'btn primary', onclick: markDone }, 'Done'),
+      h('button', { class: 'btn', onclick: swapChore }, 'Swap')
+    )
+  );
+  return [
+    h('p', { class: 'muted', style: 'margin:0 0 4px' }, dateLabel),
+    h('h1', { style: 'font-size:2rem;margin-bottom:18px' }, 'Your chore for today'),
+    sticker,
+    h('button', { class: 'link', onclick: () => setPickStatus('skipped') }, 'Skip today')
+  ];
+}
+
+function choresView() {
+  const name = h('input', { type: 'text', id: 'new-name', required: true, maxlength: '100', placeholder: 'Wash the car mats' });
+  const room = h('input', { type: 'text', id: 'new-room', list: 'rooms', maxlength: '40', placeholder: 'Room (like Kitchen)' });
+  const addForm = h('form', {
+    class: 'card',
+    onsubmit: (e) => {
+      e.preventDefault();
+      const n = name.value.trim();
+      if (!n) return;
+      addChore(n, room.value.trim() || 'General');
+    }
+  },
+    h('h2', null, 'Add a chore'),
+    h('div', { class: 'add-grid' },
+      h('label', { for: 'new-name' }, 'What needs doing?'),
+      name,
+      h('label', { for: 'new-room' }, 'Which room?'),
+      room
+    ),
+    h('div', { class: 'form-actions' }, h('button', { class: 'btn primary', type: 'submit' }, 'Add chore'))
+  );
+
+  const groups = {};
+  for (const c of state.chores) (groups[c.room] = groups[c.room] || []).push(c);
+  const roomNames = Object.keys(groups).sort((a, b) => {
+    const ia = ROOMS.indexOf(a), ib = ROOMS.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    return a.localeCompare(b);
+  });
+
+  const list = roomNames.map(r =>
+    h('section', { class: 'group' },
+      h('h3', null, h('span', { class: 'dot', style: 'background:' + roomColor(r) }), r),
+      groups[r].map(c => state.editingId === c.id ? editRow(c) : viewRow(c))
+    )
+  );
+
+  return [
+    addForm,
+    h('h2', { style: 'font-size:1.6rem;margin-bottom:12px' }, 'Your chores (' + state.chores.length + ')'),
+    state.chores.length ? list : h('p', null, 'Nothing here yet. Add your first chore above.'),
+    h('datalist', { id: 'rooms' }, ROOMS.map(r => h('option', { value: r })))
+  ];
+}
+
+function viewRow(c) {
+  return h('div', { class: 'row' },
+    h('div', null,
+      h('div', { class: 'name' }, c.name),
+      h('div', { class: 'when' }, lastDoneText(c))),
+    h('div', { class: 'row-actions' },
+      h('button', { class: 'btn small', onclick: () => { state.editingId = c.id; render(); } }, 'Edit'),
+      h('button', { class: 'btn small', onclick: () => deleteChore(c) }, 'Delete'))
+  );
+}
+
+function editRow(c) {
+  const name = h('input', { type: 'text', value: c.name, maxlength: '100', required: true, 'aria-label': 'Chore name' });
+  const room = h('input', { type: 'text', value: c.room, list: 'rooms', maxlength: '40', 'aria-label': 'Room' });
+  return h('form', {
+    class: 'row editing',
+    onsubmit: (e) => {
+      e.preventDefault();
+      const n = name.value.trim();
+      if (!n) return;
+      updateChore(c.id, n, room.value.trim() || 'General');
+    }
+  },
+    name, room,
+    h('div', { class: 'row-actions' },
+      h('button', { class: 'btn small primary', type: 'submit' }, 'Save'),
+      h('button', { class: 'btn small', type: 'button', onclick: () => { state.editingId = null; render(); } }, 'Cancel'))
+  );
+}
+
+function icsEscape(s) {
+  return s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+}
+function localStamp(d) {
+  return dateStr(d).replace(/-/g, '') + 'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00';
+}
+function reminderTimes() {
+  const [hh, mm] = state.remindTime.split(':').map(Number);
+  const start = new Date();
+  start.setHours(hh, mm, 0, 0);
+  const end = new Date(start.getTime() + 15 * 60000);
+  return { start, end };
+}
+function appUrl() {
+  return window.location.origin + window.location.pathname;
+}
+
+function downloadReminder() {
+  const { start, end } = reminderTimes();
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//TidyDay//Daily reminder//EN',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:tidyday-daily-' + Date.now() + '@tidyday',
+    'DTSTAMP:' + stamp,
+    'DTSTART:' + localStamp(start),
+    'DTEND:' + localStamp(end),
+    'RRULE:FREQ=DAILY',
+    'SUMMARY:' + icsEscape('TidyDay: your chore for today'),
+    'DESCRIPTION:' + icsEscape('Open TidyDay to see today\'s chore: ' + appUrl()),
+    'URL:' + appUrl(),
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:' + icsEscape('Time for your TidyDay chore'),
+    'TRIGGER:PT0M',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tidyday-reminder.ics';
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function googleCalendarLink() {
+  const { start, end } = reminderTimes();
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + encodeURIComponent('TidyDay: your chore for today') +
+    '&details=' + encodeURIComponent('Open TidyDay to see today\'s chore: ' + appUrl()) +
+    '&dates=' + localStamp(start) + '/' + localStamp(end) +
+    '&recur=' + encodeURIComponent('RRULE:FREQ=DAILY');
+}
+
+function reminderView() {
+  const time = h('input', {
+    type: 'time', id: 'remind-time', value: state.remindTime,
+    onchange: (e) => { state.remindTime = e.target.value || '09:00'; render(); }
+  });
+  return [
+    h('div', { class: 'card' },
+      h('h2', null, 'Daily reminder'),
+      h('p', null, 'Pick a time and add a repeating event to your phone\'s calendar. When it goes off, tap the link to see today\'s chore.'),
+      h('label', { for: 'remind-time' }, 'Remind me at'),
+      time,
+      h('div', { class: 'form-actions actions' },
+        h('button', { class: 'btn primary', onclick: downloadReminder }, 'Add to my calendar'),
+        h('a', { class: 'btn', href: googleCalendarLink(), target: '_blank', rel: 'noopener', style: 'text-decoration:none;display:inline-block' }, 'Add to Google Calendar')
+      )
+    ),
+    h('div', { class: 'card' },
+      h('h2', null, 'Keep TidyDay on your home screen'),
+      h('ol', { class: 'steps' },
+        h('li', null, 'On iPhone: tap the Share button in Safari, then Add to Home Screen.'),
+        h('li', null, 'On Android: open the browser menu, then tap Add to Home screen.')
+      )
+    )
+  ];
+}
+
+function shell(content) {
+  const tabs = [['today', 'Today'], ['chores', 'My chores'], ['reminder', 'Reminder']];
+  return [
+    h('header', { class: 'top' },
+      h('div', { class: 'brand' }, h('span', { 'aria-hidden': 'true' }, '🧽'), 'TidyDay'),
+      state.session ? h('button', { class: 'link', onclick: signOut }, 'Log out') : null
+    ),
+    state.session ? h('nav', { class: 'tabs' }, tabs.map(([id, label]) =>
+      h('button', {
+        class: 'tab',
+        'aria-current': state.tab === id ? 'page' : null,
+        onclick: () => { state.tab = id; state.msg = ''; state.editingId = null; render(); }
+      }, label))) : null,
+    state.msg ? h('div', { class: 'notice error', role: 'alert' }, state.msg) : null,
+    state.notice ? h('div', { class: 'notice good', role: 'status' }, state.notice) : null,
+    content
+  ];
+}
+
+function render() {
+  app.replaceChildren();
+  if (state.loading) {
+    app.append(...shell(h('p', null, 'Loading TidyDay...')).filter(Boolean));
+    return;
+  }
+  let content;
+  if (!state.session) content = authView();
+  else if (state.tab === 'chores') content = choresView();
+  else if (state.tab === 'reminder') content = reminderView();
+  else content = todayView();
+  app.append(...shell(content).flat().filter(Boolean));
+}
+
+// ---------- Start up ----------
+async function init() {
+  const { data } = await sb.auth.getSession();
+  state.session = data.session;
+  sb.auth.onAuthStateChange((event, session) => {
+    const before = state.session && state.session.user ? state.session.user.id : null;
+    const after = session && session.user ? session.user.id : null;
+    state.session = session;
+    if (before !== after) {
+      setTimeout(() => {
+        if (session) {
+          state.notice = '';
+          state.tab = 'today';
+          loadAll();
+        } else {
+          state.chores = [];
+          state.pick = null;
+          state.msg = '';
+          render();
+        }
+      }, 0);
+    }
+  });
+  if (state.session) {
+    await loadAll();
+  } else {
+    state.loading = false;
+    render();
+  }
+}
+init();
+</script>
+</body>
+</html>
